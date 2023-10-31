@@ -1,0 +1,51 @@
+@startuml
+
+class Product {
+    '- Product: Класс, представляющий сущность "Продукт" с атрибутами id, name и price.'
+  - id: int
+  - name: String
+  - price: float
+  + Product(id: int, name: String, price: float)
+}
+
+class ProductDAO {
+    '- ProductDAO: Класс, содержащий методы для добавления, удаления и получения продуктов из базы данных или списка.'
+  - products: List<Product>
+  + add_product(product: Product)
+  + remove_product(product: Product)
+  + get_all_products(): List<Product>
+}
+
+class ProductRepository {
+    '- ProductRepository: Класс, служащий репозиторием для продуктов. Использует ProductDAO для доступа к данным.'
+  - dao: ProductDAO
+  + add_product(product: Product)
+  + remove_product(product: Product)
+  + get_all_products(): List<Product>
+}
+
+class ProductService {
+    '- ProductService: Класс сервисного слоя, использующий ProductRepository для выполнения операций с продуктами.'
+  - repository: ProductRepository
+  + add_product(product: Product)
+}
+
+class UnitOfWork {
+    '- UnitOfWork: Класс, позволяющий группировать операции с продуктами в рамках транзакции.'
+  - new_products: List<Product>
+  - removed_products: List<Product>
+  + register_new(product: Product)
+  + register_removed(product: Product)
+  + commit()
+}
+
+Product --> "*" ProductDAO
+ProductRepository --> ProductDAO
+ProductService --> ProductRepository
+UnitOfWork --> "*" Product
+
+ProductDAO --> "1" ProductRepository
+ProductRepository --> "1" ProductService
+ProductService --> "1" UnitOfWork
+
+@enduml
